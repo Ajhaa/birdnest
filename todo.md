@@ -1,4 +1,4 @@
-- simple frontend to display the list
+- frontend refresh broken?
 - clean up code
 - simple visualization
 - more persistence in backend

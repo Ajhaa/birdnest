@@ -9,7 +9,7 @@ RUN npm run build
 
 COPY ./client ./client
 
-ENV API_URL=https://ajhaa.fi/pilots
+ENV API_URL=https://ajhaa.fi/birdnest/pilots
 RUN cd ./client && npm ci && npm run build
 RUN mv ./client/build ./dist/www
 
