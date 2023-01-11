@@ -1,0 +1,4 @@
+- simple frontend to display the list
+- clean up code
+- simple visualization
+- more persistence in backend

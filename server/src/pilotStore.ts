@@ -34,7 +34,7 @@ export class InMemoryPilotStore implements PilotStore {
             }
         }
 
-        return pilots;
+        return pilots.sort((p1, p2) => p2.updatedAt - p1.updatedAt);
 
     }
 }

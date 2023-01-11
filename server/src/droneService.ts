@@ -5,6 +5,7 @@ import { Drone, Pilot } from './types';
 
 const droneUrl = 'http://assignments.reaktor.com/birdnest/drones';
 const pilotUrl = 'http://assignments.reaktor.com/birdnest/pilots/';
+
 const xmlParser = new XMLParser();
 const pilotStore = new InMemoryPilotStore();
 
@@ -21,13 +22,10 @@ function distanceToNoFlyZone(droneX: number, droneY: number) : number {
 
 function isInNoFlyZone(droneX: number, droneY: number): boolean {
     const distance = distanceToNoFlyZone(droneX, droneY);
-
-    console.log(droneX, droneY, distance);
-
     return distance <= noFlyRadius
 }
 
-async function getPilot(serialNumber: string) : Promise<Pilot | null> {
+async function getPilotFromApi(serialNumber: string) : Promise<Pilot | null> {
     const response = await axios.get(pilotUrl + serialNumber);
 
     if (response.status != 200) return null;
@@ -35,12 +33,16 @@ async function getPilot(serialNumber: string) : Promise<Pilot | null> {
     return response.data;
 }
 
-export async function updatePilotData() : Promise<boolean> {
+async function getDronesFromApi() : Promise<Drone[]> {
     const response = await axios.get(droneUrl);
     const jsonData = xmlParser.parse(response.data);
     const drones: Drone[] = jsonData.report.capture.drone;
 
-    const violatingPilots: Pilot[] = [];
+    return drones;
+}
+
+export async function updatePilotData() : Promise<boolean> {
+    const drones = await getDronesFromApi();
 
     for (let drone of drones) {
         const existingPilot = pilotStore.getPilot(drone.serialNumber);
@@ -54,7 +56,7 @@ export async function updatePilotData() : Promise<boolean> {
                 continue;
             }
 
-            const newPilot = await getPilot(drone.serialNumber);
+            const newPilot = await getPilotFromApi(drone.serialNumber);
             if (!newPilot) continue;
 
             newPilot.closestDistanceToNest = distance;
