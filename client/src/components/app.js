@@ -1,10 +1,11 @@
 import { h } from 'preact';
 import { useState, useEffect, useCallback } from 'preact/hooks';
 
+const apiUrl = process.env.API_URL;
+
 function getPilots() {
-	return fetch('http://localhost:3000/pilots')
+	return fetch(apiUrl)
 		.then(response => {
-			console.log(response);
 			return response;
 		})
 		.then(response => response.json());

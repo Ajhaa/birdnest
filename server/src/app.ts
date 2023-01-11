@@ -21,6 +21,8 @@ function pilotDataUpdate() {
 }
 
 
+app.use(express.static('dist/www'));
+
 app.get('/pilots', async (_req: Request, res: Response) => {
     const data = getPilots();
     res.json(data);
