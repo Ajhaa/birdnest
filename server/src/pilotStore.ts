@@ -19,22 +19,27 @@ export class InMemoryPilotStore implements PilotStore {
         this.pilots[serialNumber] = pilot;
     }
 
+    // TODO check expiration here also!
     getPilot(serialNumber: string) : Pilot | null {
-        return this.pilots[serialNumber];
+        const pilot = this.pilots[serialNumber];
+        if (!pilot) return null;
+
+        if (new Date().getTime() - pilot.updatedAt > this.pilotPersistTimeMilliseconds) {
+            delete this.pilots[serialNumber];
+            return null;
+        }
+
+        return pilot;
     }
 
     getPilots() : Pilot[] {
         const pilots = [];
-        const currentTime = new Date().getTime();
-        for (let [serialNumber, pilot] of Object.entries(this.pilots)) {
-            if (currentTime - pilot.updatedAt > this.pilotPersistTimeMilliseconds) {
-                delete this.pilots[serialNumber];
-            } else {
-                pilots.push(pilot);
-            }
+        for (let serialNumber of Object.keys(this.pilots)) {
+            const pilot = this.getPilot(serialNumber);
+            if (pilot !== null) pilots.push(pilot);
         }
 
-        return pilots.sort((p1, p2) => p2.updatedAt - p1.updatedAt);
+        return pilots;
 
     }
 }

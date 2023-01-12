@@ -10,6 +10,7 @@ const xmlParser = new XMLParser();
 const pilotStore = new InMemoryPilotStore();
 
 const noFlyRadius = 100_000;
+// location of the center of the no fly zone
 const noFlyX = 250_000;
 const noFlyY = 250_000;
 
@@ -45,17 +46,19 @@ export async function updatePilotData() : Promise<boolean> {
     const drones = await getDronesFromApi();
 
     for (let drone of drones) {
-        const existingPilot = pilotStore.getPilot(drone.serialNumber);
         const distance = distanceToNoFlyZone(drone.positionX, drone.positionY);
+        const existingPilot = pilotStore.getPilot(drone.serialNumber);
+
+        // keep an existing pilot in the system even if they don't break the no fly zone
+        if (existingPilot) {
+            existingPilot.closestDistanceToNest = Math.min(existingPilot.closestDistanceToNest, distance);
+            existingPilot.drone = drone;
+
+            pilotStore.addOrUpdatePilot(drone.serialNumber, existingPilot);
+            continue;
+        }
+
         if (distance <= noFlyRadius) {
-            if (existingPilot) {
-                existingPilot.closestDistanceToNest = Math.min(existingPilot.closestDistanceToNest, distance);
-                existingPilot.drone = drone;
-
-                pilotStore.addOrUpdatePilot(drone.serialNumber, existingPilot);
-                continue;
-            }
-
             const newPilot = await getPilotFromApi(drone.serialNumber);
             if (!newPilot) continue;
 
@@ -69,5 +72,7 @@ export async function updatePilotData() : Promise<boolean> {
 }
 
 export function getPilots() : Pilot[] {
-    return pilotStore.getPilots();
+    return pilotStore
+        .getPilots()
+        .sort((p1, p2) => p2.updatedAt - p1.updatedAt);
 }
