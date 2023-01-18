@@ -5,7 +5,7 @@
  */
  export default (config, env, helpers) => {
   const { plugin } = helpers.getPluginsByName(config, 'DefinePlugin')[0];
-  const configuredUrl = process.env.API_URL || 'http://localhost:3000';
+  const configuredUrl = process.env.API_URL || 'http://localhost:3000/pilots';
   config.output.publicPath = process.env.BASE_PATH || '/';
   plugin.definitions['process.env.API_URL'] = JSON.stringify(configuredUrl);
 }

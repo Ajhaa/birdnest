@@ -46,7 +46,8 @@ const Pilot = ({ pilot }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<div>
-			<h2 onClick={() => setIsOpen(!isOpen)}>{pilot.firstName} {pilot.lastName} </h2>
+			<h2>{pilot.firstName} {pilot.lastName} </h2>
+			<button onClick={() => setIsOpen(!isOpen)}>{isOpen ? 'hide' : 'show more'}</button>
 			{isOpen &&
 			<>
 				<p>{pilot.email}</p>
