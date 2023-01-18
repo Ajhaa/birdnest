@@ -10,6 +10,7 @@ RUN npm run build
 COPY ./client ./client
 
 ENV API_URL=https://ajhaa.fi/birdnest/pilots
+ENV BASE_PATH='/birdnest'
 RUN cd ./client && npm ci && npm run build
 RUN mv ./client/build ./dist/www
 
